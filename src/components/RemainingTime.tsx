@@ -4,35 +4,40 @@ import React, { useState, useEffect } from 'react';
 import reportWebVitals from '../reportWebVitals';
 
 export const RemainingTime = () => {
-	const [remainingSeconds, setRemainingSeconds] = useState<number | undefined>(10);
-	const [remainingMinutes, setRemainingMinutes] = useState<number | undefined>(0);
+	const [seconds, setSeconds] = useState<number>(5);
+	const [minutes, setMinutes] = useState<number>(1);
 
-	const getSeconds = () => remainingSeconds;
+	const initializeTime = (amount: number) => {
+		const calculateSeconds = amount * 60;
+		setSeconds(calculateSeconds);
+		setMinutes(amount);
+	};
+
+	const decrementTime = () => {
+		setTimeout(() => {
+			if (minutes === 0 && seconds === 0) {
+				setSeconds(-1);
+				setMinutes(-1);
+			} else if (minutes === 0) {
+				setSeconds(seconds - 1);
+			} else if (seconds === 0) {
+				setMinutes(minutes - 1);
+				setSeconds(60);
+			} else {
+				setSeconds(seconds - 1);
+			}
+		}, 1000);
+	};
 
 	useEffect(() => {
-		const timeInterval = setInterval(() => {
-			setRemainingSeconds((oldSeconds) => {
-				if (oldSeconds === 0) {
-					setRemainingMinutes((oldMinutes) => {
-						if (oldMinutes === undefined || oldSeconds === undefined || (oldMinutes === 0 && oldSeconds === 0)) {
-							clearInterval(timeInterval);
-							return 0;
-						} else if (oldMinutes === 0) {
-							return 0;
-						} else {
-							return oldMinutes - 1;
-						}
-					});
-					return oldSeconds === 0 ? clearInterval(timeInterval) : 60;
-				} else if (oldSeconds !== undefined) {
-					return oldSeconds - 1;
-				}
-			});
-		}, 1000);
-		console.log(`seconds = ${remainingSeconds}, minutes = ${remainingMinutes}`);
-	}, []);
+		if (seconds === 0 && minutes === 0) {
+			// stop iteration
+		} else {
+			decrementTime();
+		}
+	}, [seconds, minutes]);
 
 	return (
-		<h1><Badge bg="primary">Time Remaining: {remainingMinutes} Minutes and {remainingSeconds} Seconds</Badge></h1>
+		<h1><Badge bg="primary">Time Remaining: {minutes} Minutes and {seconds} Seconds</Badge></h1>
 	);
 };
